@@ -31,15 +31,16 @@
         android:orientation="horizontal">
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout"
-            android:layout_weight="8"
+            android:layout_weight="4"
             android:layout_width="wrap_content"
             android:layout_height="61dp">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/txtUrlLapor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLines="1"
                 android:ellipsize="end"
-                android:hint="URL gambar hewan" />
+                android:hint="File Gambar" />
         </com.google.android.material.textfield.TextInputLayout>
         <ImageButton
             android:id="@+id/bt_upload"
@@ -65,7 +66,7 @@
             android:id="@+id/txtDeksripsiLapor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="deskripsi" />
+            android:hint="Deskripsi" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -83,7 +84,7 @@
             android:id="@+id/txtLokasiSatwaLapor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="lokasi satwa" />
+            android:hint="Lokasi Satwa" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -112,7 +113,8 @@
             android:id="@+id/txtTelpPelapor"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="telp pelapor" />
+            android:inputType="number"
+            android:hint="Telp Pelapor" />
     </com.google.android.material.textfield.TextInputLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

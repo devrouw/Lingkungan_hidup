@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -44,6 +45,8 @@ public class InputPengaduanActivity extends AppCompatActivity {
     private Bitmap bitmap;
     private String imageName;
 
+    ProgressDialog loading;
+
     private static final int GALLERY_1 = 11;
     private static final int PERMISSION_REQUEST_CODE = 200;
 
@@ -58,6 +61,8 @@ public class InputPengaduanActivity extends AppCompatActivity {
         txtTelp = (TextView) findViewById(R.id.txtTelpPelapor);
         btnSend = (Button) findViewById(R.id.btnInputPengaduan);
         btnUpload = findViewById(R.id.bt_upload);
+
+        loading = new ProgressDialog(this);
 
         btnUpload.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,15 +81,16 @@ public class InputPengaduanActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-//                Intent i=new Intent(getBaseContext(), LoginAdminActivity.class);
-//                startActivity(i);
-
                 if (txtgambar.getText().toString().isEmpty() ||
                         txtAlasan.getText().toString().isEmpty() ||
                         txtLokasiSatwa.getText().toString().isEmpty() ||
                         txtTelp.getText().toString().isEmpty()) {
                     Toast.makeText(getBaseContext(), "silahkan lengkapi data", Toast.LENGTH_LONG).show();
                 } else {
+                    loading.setMessage("Sedang Mengirim Data...");
+                    loading.setCancelable(false);
+                    loading.show();
+
                     String url = MainActivity.basic_url + "tambah-pengaduan";
                     Log.d("deb adu URL", url);
 
@@ -94,12 +100,14 @@ public class InputPengaduanActivity extends AppCompatActivity {
                                 public void onResponse(NetworkResponse response) {
                                     String resultResponse = new String(response.data);
                                     try {
+                                        loading.dismiss();
                                         JSONObject data = new JSONObject(resultResponse);
                                         if (data.getBoolean("status")) {
                                             Toast.makeText(getApplicationContext(), "Data berhasil dikirim", Toast.LENGTH_LONG).show();
                                             finish();
                                         }
                                     } catch (JSONException e) {
+                                        loading.dismiss();
                                         e.printStackTrace();
                                     }
                                 }
@@ -107,6 +115,7 @@ public class InputPengaduanActivity extends AppCompatActivity {
                             new Response.ErrorListener() {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
+                                    loading.dismiss();
                                     Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
                                     Log.e("GotError", "" + error.getMessage());
                                 }
@@ -131,33 +140,6 @@ public class InputPengaduanActivity extends AppCompatActivity {
 
                     //adding the request to volley
                     Volley.newRequestQueue(InputPengaduanActivity.this).add(volleyMultipartRequest);
-
-//                    StringRequest stringRequest= new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-//                        @Override
-//                        public void onResponse(String response) {
-//                            Log.d("deb respon", "ok");
-//                            try {
-//                                JSONObject data = new JSONObject(response);
-//                                if (data.getString("result").equalsIgnoreCase("ok"))
-//                                {
-//                                    Log.d("deb URL", "result ok");
-//                                    Toast.makeText(getBaseContext(),"terima kasih, data sudah direkam!",Toast.LENGTH_LONG).show();
-//                                    finish();
-//                                }
-//                            } catch (JSONException e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    },
-//                            new Response.ErrorListener() {
-//                                @Override
-//                                public void onErrorResponse(VolleyError error) {
-//                                    Toast.makeText(getBaseContext(),"err"+error.toString(),Toast.LENGTH_LONG).show();
-//                                }
-//                            }
-//                    );
-//                    RequestQueue requestQueue = Volley.newRequestQueue(getBaseContext());
-//                    requestQueue.add(stringRequest);
                 }
             }
         });
@@ -176,15 +158,12 @@ public class InputPengaduanActivity extends AppCompatActivity {
         if (requestCode == GALLERY_1 && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri picUri = data.getData();
             String filePath = getPath(picUri);
+            Log.d("filepath",filePath);
             File file = new File(getPath(picUri));
             if (filePath != null) {
-                try {
-                    imageName = file.getName();
-                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), picUri);
-                    txtgambar.setText(file.getName());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                imageName = file.getName();
+                bitmap = ImageUtils.getInstant().getCompressedBitmap(file.getAbsolutePath());
+                txtgambar.setText(file.getName());
             } else {
                 Toast.makeText(this, "Gambar tidak ditemukan",
                         Toast.LENGTH_LONG).show();
@@ -224,7 +203,7 @@ public class InputPengaduanActivity extends AppCompatActivity {
 
     public byte[] getFileDataFromDrawable(Bitmap bitmap) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 80, byteArrayOutputStream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 60, byteArrayOutputStream);
         return byteArrayOutputStream.toByteArray();
     }
 }
