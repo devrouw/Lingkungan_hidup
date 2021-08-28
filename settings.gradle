@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name = "Lingkungan_hidup"
